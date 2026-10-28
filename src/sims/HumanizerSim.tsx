@@ -1,6 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { humanizerSamples } from '../data/simulations'
-import { useStore } from '../utils/store'
 import { aiScore, detect, humanize, patterns } from '../utils/humanizer'
 import { ApprovalGate, Card, Field, Pill } from './shared'
 
@@ -36,7 +35,6 @@ function highlight(text: string): ReactNode[] {
 }
 
 export default function HumanizerSim() {
-  const openViewer = useStore((s) => s.openViewer)
   const [text, setText] = useState(humanizerSamples[0].text)
   const findings = useMemo(() => detect(text), [text])
   const score = aiScore(text)
@@ -49,7 +47,6 @@ export default function HumanizerSim() {
           {humanizerSamples.map((s) => (
             <button key={s.id} className={`btn ${text === s.text ? 'btn-cyan' : ''}`} onClick={() => setText(s.text)}>{s.label}</button>
           ))}
-          <button className="btn" onClick={() => openViewer('humanizer')}>🖼 원본 인포그래픽 열기</button>
         </div>
       </Field>
       <Field label="점검할 문장 (직접 입력·수정)" hint="고객 개인정보나 기밀은 붙여넣지 마세요.">

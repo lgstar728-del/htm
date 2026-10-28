@@ -12,7 +12,6 @@ export function Header() {
   const setMode3d = useStore((s) => s.setMode3d)
   const setGraphOpen = useStore((s) => s.setGraphOpen)
   const setDashOpen = useStore((s) => s.setDashOpen)
-  const openViewer = useStore((s) => s.openViewer)
   const focusHotel = useStore((s) => s.focusHotel)
   const exitHotel = useStore((s) => s.exitHotel)
   const hotel = hotelById(hotelId ?? '')
@@ -44,7 +43,6 @@ export function Header() {
       </div>
       <div className="pointer-events-auto flex flex-wrap justify-end gap-1.5">
         <button className="btn glass" onClick={() => setGraphOpen(true)} title="AI 교육 지식그래프">🕸️<span className="hidden lg:inline">지식그래프</span></button>
-        <button className="btn glass" onClick={() => openViewer('ai-engineering')} title="원본 인포그래픽 3종">🖼️<span className="hidden lg:inline">인포그래픽</span></button>
         <button className="btn glass" onClick={() => setDashOpen(true)} title="학습 현황">📊<span className="hidden sm:inline">{Math.round(overall * 100)}%</span></button>
         {webgl && (
           <button className="btn glass" onClick={() => setMode3d(!mode3d)} title="3D / 2D 간편 모드 전환 (저사양 기기용)">{mode3d ? '2D' : '3D'}<span className="hidden lg:inline">{mode3d ? ' 간편모드' : ' 모드'}</span></button>

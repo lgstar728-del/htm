@@ -2,12 +2,11 @@ import { create } from 'zustand'
 import { hotelById, STYLE_HEIGHT } from '../data/hotels'
 import { hasWebGL, isLowEnd, safeStorage } from './env'
 
-export const STEP_IDS = ['objectives', 'theory', 'image', 'cases', 'prompt', 'practice', 'quiz'] as const
+export const STEP_IDS = ['objectives', 'theory', 'cases', 'prompt', 'practice', 'quiz'] as const
 export type StepId = (typeof STEP_IDS)[number]
 export const STEP_LABELS: Record<StepId, string> = {
   objectives: '학습목표',
   theory: '핵심 이론',
-  image: '원본 이미지',
   cases: '호텔 적용사례',
   prompt: 'AI 프롬프트',
   practice: '실습',

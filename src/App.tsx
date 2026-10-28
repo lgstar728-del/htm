@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Header } from './components/Header'
 import { HotelSelector } from './components/HotelSelector'
 import { LearningPanel } from './components/LearningPanel'
-import { ImageViewer } from './components/ImageViewer'
 import { KnowledgeGraphModal } from './components/KnowledgeGraph'
 import { Dashboard } from './components/Dashboard'
 import { Fallback2D } from './components/Fallback2D'
@@ -76,7 +75,6 @@ export default function App() {
       <LearningPanel />
       <KnowledgeGraphModal />
       <Dashboard />
-      <ImageViewer />
       <TransitionOverlay />
     </div>
   )

@@ -176,7 +176,6 @@ const LAYERS = [
 function Layers() {
   const [id, setId] = useState('prompt')
   const openLesson = useStore((s) => s.openLesson)
-  const openViewer = useStore((s) => s.openViewer)
   const cur = useStore((s) => s.lessonId)
   const l = LAYERS.find((x) => x.id === id)!
   return (
@@ -198,7 +197,6 @@ function Layers() {
         <div><b style={{ color: l.color }}>활용 예시</b> {l.use}</div>
         <div className="mt-2 flex flex-wrap gap-2">
           {cur !== l.lesson && <button className="btn btn-cyan" onClick={() => openLesson(l.lesson)}>이 층 강의 열기 ▶</button>}
-          <button className="btn" onClick={() => openViewer('ai-engineering')}>🖼 원본 인포그래픽</button>
         </div>
       </Detail>
       <p className="mt-2 text-[12.5px] text-slate-300">하나씩 바꾸는 것이 아니라 5개가 함께 작동할 때 AI는 단순 채팅을 넘어 신뢰할 수 있는 결과를 만듭니다.</p>

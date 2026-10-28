@@ -42,7 +42,7 @@
 
 ## 4. 교육 콘텐츠 (`src/data/lessons/*.ts`, `courses.ts`)
 
-각 강의는 **학습목표 → 핵심 이론 → 원본 이미지 → 호텔 적용사례 → AI 프롬프트 → 실습 → 퀴즈** 7단계. 코스(courses.ts) 5개 = 호텔 5개.
+각 강의는 **학습목표 → 핵심 이론 → 호텔 적용사례 → AI 프롬프트 → 실습 → 퀴즈** 6단계. 코스(courses.ts) 5개 = 호텔 5개.
 
 | 호텔 | ID | 강의 | 근거 자료 |
 | --- | --- | --- | --- |
@@ -69,7 +69,7 @@
 | | L21 | Loop Engineering | 5 Layers, 1부 |
 | | L22 | Graph Engineering | 5 Layers |
 
-원본 인포그래픽 5종(LLM·RAG·에이전트, Gen AI Iceberg, AI Engineering 5 Layers, AI 말투, 바이브코딩)은 `public/images/` 에 원본 PNG 그대로 포함하며, 뷰어(`ImageViewer`)가 휠/핀치 확대·축소, 드래그 이동, 더블클릭, 전체 화면, 다운로드를 지원한다.
+인포그래픽 5종 원본 PNG는 `public/images/` 에 보관하며(데이터 `data/infographics.ts`), 강의 화면의 "원본 이미지" 단계와 뷰어 UI는 제거했습니다. 필요하면 `components/ImageViewer.tsx`를 다시 연결해 복원할 수 있습니다.
 
 ## 5. 직무별 실습 (`src/data/simulations.ts`, `src/sims/*`)
 

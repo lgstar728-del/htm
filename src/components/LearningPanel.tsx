@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Block, Lesson, PromptTemplate } from '../types'
 import { lessonById } from '../data/lessons'
-import { infographicById, infographics } from '../data/infographics'
 import { hotelById, deptLessonIds } from '../data/hotels'
 import { courseOfLesson } from '../data/courses'
 import { STEP_IDS, STEP_LABELS, lessonCompletion, useStore, type StepId } from '../utils/store'
@@ -225,7 +224,6 @@ export function LearningPanel() {
   const close = useStore((s) => s.closeLesson)
   const lecture = useStore((s) => s.lecture)
   const setLecture = useStore((s) => s.setLecture)
-  const openViewer = useStore((s) => s.openViewer)
   const openLesson = useStore((s) => s.openLesson)
   const progress = useStore((s) => s.progress)
   const hotelId = useStore((s) => s.hotelId)
@@ -270,7 +268,6 @@ export function LearningPanel() {
   }
 
   const done = lesson ? lessonCompletion(progress[lesson.id]) : 0
-  const info = lesson ? infographicById(lesson.infographicId) : undefined
   const prevNext = lesson ? { prev: lessonById(`L${String(lesson.no - 1).padStart(2, '0')}`), next: lessonById(`L${String(lesson.no + 1).padStart(2, '0')}`) } : undefined
 
   return (
@@ -329,7 +326,7 @@ export function LearningPanel() {
           </header>
 
           <div className="scroll-thin flex-1 overflow-y-auto px-4 py-4 md:px-6" key={lesson.id + step}>
-            <StepBody step={step} lesson={lesson} big={lecture} info={info} openViewer={openViewer} />
+            <StepBody step={step} lesson={lesson} big={lecture} />
           </div>
 
           <footer className="flex items-center justify-between gap-2 border-t border-white/10 px-4 py-2.5 md:px-6">
@@ -349,7 +346,7 @@ export function LearningPanel() {
   )
 }
 
-function StepBody({ step, lesson, big, info, openViewer }: { step: StepId; lesson: Lesson; big: boolean; info: ReturnType<typeof infographicById>; openViewer: (id: string | null) => void }) {
+function StepBody({ step, lesson, big }: { step: StepId; lesson: Lesson; big: boolean }) {
   const t = big ? 'text-[17px]' : 'text-[14.5px]'
   const setStep = useStore((s) => s.setLessonStep)
   switch (step) {
@@ -368,7 +365,7 @@ function StepBody({ step, lesson, big, info, openViewer }: { step: StepId; lesso
           <h4 className="mb-2 mt-5 text-[13px] font-bold text-cyan-200">📚 근거 강의자료</h4>
           <div className="flex flex-wrap gap-1.5">{lesson.sources.map((s) => <span key={s} className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[12px] text-slate-200">{s}</span>)}</div>
           <div className="mt-5 rounded-xl border border-cyan-300/30 bg-cyan-300/10 p-3 text-[13px] text-cyan-50">
-            학습 흐름: 학습목표 → 핵심 이론 → 원본 이미지 → 호텔 적용사례 → AI 프롬프트 → 실습 → 퀴즈 · 키보드 ←/→ 로 이동할 수 있습니다.
+            학습 흐름: 학습목표 → 핵심 이론 → 호텔 적용사례 → AI 프롬프트 → 실습 → 퀴즈 · 키보드 ←/→ 로 이동할 수 있습니다.
           </div>
         </div>
       )
@@ -377,41 +374,6 @@ function StepBody({ step, lesson, big, info, openViewer }: { step: StepId; lesso
         <div>
           <h3 className="mb-1 text-lg font-bold text-gold">📖 핵심 이론</h3>
           {lesson.theory.map((b, i) => <BlockView key={i} b={b} big={big} />)}
-        </div>
-      )
-    case 'image':
-      return (
-        <div>
-          <h3 className="mb-2 text-lg font-bold text-gold">🖼️ 원본 이미지</h3>
-          {info ? (
-            <>
-              <button onClick={() => openViewer(info.id)} className="group relative block w-full overflow-hidden rounded-2xl border border-gold/40 bg-black/30" aria-label={`${info.title} 원본 크게 보기`}>
-                <img src={info.src} alt={info.title} className="max-h-[56dvh] w-full object-contain" loading="lazy" width={info.width} height={info.height} />
-                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-center text-sm font-bold text-gold opacity-90 group-hover:opacity-100">🔍 클릭하면 원본을 확대·축소·전체화면으로 볼 수 있습니다</span>
-              </button>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button className="btn btn-gold" onClick={() => openViewer(info.id)}>⛶ 원본 열기 (확대·전체화면)</button>
-                <a className="btn" href={info.src} download>⬇ 원본 다운로드</a>
-              </div>
-              <h4 className="mt-3 text-[15px] font-bold text-white">{info.title}</h4>
-              <p className="text-[13.5px] text-slate-300">{info.caption}</p>
-              {lesson.infographicNote && <div className="mt-3 rounded-xl border border-cyan-300/30 bg-cyan-300/10 p-3 text-[13.5px] text-cyan-50">👀 보는 포인트 · {lesson.infographicNote}</div>}
-            </>
-          ) : (
-            <>
-              <p className="text-[14px] text-slate-200">이 강의는 아래 PPT 강의자료를 근거로 구성되었습니다. 핵심 슬라이드는 “핵심 이론”에 정리되어 있고, 전체 과정의 원본 인포그래픽은 다음에서 확인할 수 있습니다.</p>
-              <ul className="my-3 space-y-1.5">{lesson.sources.map((s) => <li key={s} className="rounded-lg border border-white/12 bg-white/5 px-3 py-2 text-[13px]">📑 {s}</li>)}</ul>
-              <h4 className="mb-2 text-[13px] font-bold text-cyan-200">전체 인포그래픽 (원본 · 확대 가능)</h4>
-              <div className="grid grid-cols-3 gap-2">
-                {infographics.map((i) => (
-                  <button key={i.id} onClick={() => openViewer(i.id)} className="overflow-hidden rounded-xl border border-white/15 bg-black/30 text-left hover:border-gold">
-                    <img src={i.src} alt={i.title} loading="lazy" className="h-24 w-full object-cover md:h-32" />
-                    <div className="p-1.5 text-[11px] leading-tight text-slate-200">{i.title}</div>
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
         </div>
       )
     case 'cases':
