@@ -1,0 +1,25 @@
+name: CI
+
+# push / PR 시 콘텐츠 연결 검증 → 타입 검사 → 빌드를 수행합니다.
+# 배포는 Vercel Git 연동이 main 브랜치 push 시 자동으로 처리합니다.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: 콘텐츠·이미지 경로 검증
+        run: npm run validate
+      - name: TypeScript 검사
+        run: npm run typecheck
+      - name: 빌드
+        run: npm run build
