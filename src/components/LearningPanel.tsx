@@ -3,13 +3,12 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { Block, Lesson, PromptTemplate } from '../types'
 import { lessonById } from '../data/lessons'
 import { infographicById, infographics } from '../data/infographics'
-import { hotelById } from '../data/hotels'
-import { courseById } from '../data/courses'
+import { hotelById, deptLessonIds } from '../data/hotels'
+import { courseOfLesson } from '../data/courses'
 import { STEP_IDS, STEP_LABELS, lessonCompletion, useStore, type StepId } from '../utils/store'
 import { copyText } from '../utils/env'
 import { VisualBlock } from './Visuals'
 import { SimulationPanel } from './SimulationPanel'
-import { simById } from '../data/simulations'
 
 /* ---------------- 이론 블록 렌더러 ---------------- */
 function BlockView({ b, big }: { b: Block; big: boolean }) {
@@ -70,7 +69,46 @@ function BlockView({ b, big }: { b: Block; big: boolean }) {
       )
     case 'visual':
       return <VisualBlock kind={b.kind} title={b.title} />
+    case 'steps':
+      return <StepsView b={b} big={big} />
+    case 'code':
+      return <CodeView text={b.text} caption={b.caption} />
   }
+}
+
+function StepsView({ b, big }: { b: Extract<Block, { t: 'steps' }>; big: boolean }) {
+  const [i, setI] = useState(0)
+  const cur = b.items[i]
+  return (
+    <figure className="my-4 rounded-2xl border border-cyan-300/25 bg-gradient-to-br from-navy-3/70 to-navy/80 p-3 md:p-4" aria-label={b.title}>
+      <figcaption className="mb-2 text-[13px] font-semibold text-cyan-200">▶ 인터랙티브 · {b.title}</figcaption>
+      <div className="flex flex-wrap gap-1.5" role="tablist">
+        {b.items.map((it, k) => (
+          <button key={it.label} role="tab" aria-selected={i === k} onClick={() => setI(k)} className={`rounded-xl border px-3 py-2 text-left text-[13px] font-semibold transition ${i === k ? 'border-gold bg-gold/20 text-gold' : 'border-white/15 bg-white/5 text-slate-200 hover:border-white/40'}`}>
+            {it.label}
+            {it.sub && <span className="block text-[11px] font-normal opacity-75">{it.sub}</span>}
+          </button>
+        ))}
+      </div>
+      <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-3 rounded-xl border border-white/12 bg-black/25 p-3">
+        <p className={`${big ? 'text-[17px]' : 'text-[14px]'} prose-lec text-slate-100`}>{cur.body}</p>
+        {cur.hotel && <div className="mt-2 rounded-lg bg-gold/10 p-2 text-[13px]"><b className="text-gold">🏨 호텔 적용</b> {cur.hotel}</div>}
+      </motion.div>
+    </figure>
+  )
+}
+
+function CodeView({ text, caption }: { text: string; caption?: string }) {
+  const [ok, setOk] = useState(false)
+  return (
+    <div className="my-4 overflow-hidden rounded-xl border border-white/12">
+      <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-white/5 px-3 py-1.5 text-[12.5px] font-semibold text-gold">
+        <span>{caption ?? '예시'}</span>
+        <button className="btn !min-h-7 !px-2 !py-0.5 !text-[12px]" onClick={async () => { setOk(await copyText(text)); setTimeout(() => setOk(false), 1400) }}>{ok ? '복사됨 ✓' : '📋 복사'}</button>
+      </div>
+      <pre className="overflow-x-auto whitespace-pre-wrap bg-black/40 p-3 font-mono text-[12.5px] leading-relaxed text-emerald-200">{text}</pre>
+    </div>
+  )
 }
 
 /* ---------------- 프롬프트 랩 ---------------- */
@@ -162,24 +200,19 @@ function Quiz({ lesson }: { lesson: Lesson }) {
   )
 }
 
-/* ---------------- 실습: 부서 실습 + 강의 실습 전환 ---------------- */
-function PracticeSims({ lessonSimId, deptSimId, deptName }: { lessonSimId?: string; deptSimId?: string; deptName?: string }) {
-  const ids = [deptSimId, lessonSimId].filter((x, i, a): x is string => !!x && a.indexOf(x) === i)
-  const [cur, setCur] = useState(ids[0])
-  useEffect(() => setCur(ids[0]), [deptSimId, lessonSimId]) // eslint-disable-line react-hooks/exhaustive-deps
-  if (!ids.length) return null
+/* ---------------- 실제 도구 실습(시뮬레이션이 없는 강의) ---------------- */
+function HandsOn({ lesson }: { lesson: Lesson }) {
+  const [ticks, setTicks] = useState<boolean[]>(() => lesson.practice.steps.map(() => false))
+  useEffect(() => setTicks(lesson.practice.steps.map(() => false)), [lesson.id, lesson.practice.steps])
   return (
-    <div>
-      {ids.length > 1 && (
-        <div className="mb-3 flex flex-wrap gap-2" role="tablist" aria-label="실습 선택">
-          {ids.map((id) => (
-            <button key={id} role="tab" aria-selected={cur === id} data-simtab={id} onClick={() => setCur(id)} className={`btn ${cur === id ? 'btn-cyan' : ''}`}>
-              {id === deptSimId ? `🏨 ${deptName ?? '부서'} 실습` : '📘 강의 실습'} · {simById(id)?.title}
-            </button>
-          ))}
-        </div>
-      )}
-      {cur && <SimulationPanel key={cur} simId={cur} />}
+    <div className="rounded-2xl border border-cyan-300/30 bg-cyan-300/5 p-3.5">
+      <div className="mb-2 flex items-center gap-2 text-[13px] font-bold text-cyan-200"><span className="rounded-full bg-cyan-300 px-2 py-0.5 text-[11px] text-navy">HANDS-ON</span> 실제 도구(Claude · Cursor · 터미널)로 직접 실습합니다</div>
+      <ul className="space-y-2">
+        {lesson.practice.steps.map((st, i) => (
+          <li key={st}><label className="flex cursor-pointer items-start gap-2 text-[14px]"><input type="checkbox" className="mt-1 h-4 w-4 accent-cyan-400" checked={ticks[i]} onChange={() => setTicks(ticks.map((v, k) => (k === i ? !v : v)))} /><span><b className="text-gold">{i + 1}.</b> {st}</span></label></li>
+        ))}
+      </ul>
+      <p className="mt-2 text-[12.5px] text-slate-300">{ticks.filter(Boolean).length}/{ticks.length} 완료 · 이 강의의 "AI 프롬프트" 단계의 프롬프트를 복사해 사용하세요. 결과는 사람이 검토·승인합니다.</p>
     </div>
   )
 }
@@ -258,7 +291,7 @@ export function LearningPanel() {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-x-2 text-[12px] text-cyan-200">
                   {hotel && <span className="font-bold text-gold">{hotel.shortName}{dept ? ` · ${dept.name}` : ''}</span>}
-                  <span>LESSON {String(lesson.no).padStart(2, '0')} · {courseById(lesson.courseId)?.title}</span>
+                  <span>LESSON {String(lesson.no).padStart(2, '0')} · {courseOfLesson(lesson.id)?.title}</span>
                 </div>
                 <h2 className={`${lecture ? 'text-3xl' : 'text-xl'} font-extrabold leading-tight text-white`}>{lesson.title}</h2>
                 <p className="text-[13px] text-slate-300">{lesson.subtitle}</p>
@@ -268,6 +301,17 @@ export function LearningPanel() {
                 <button className="btn btn-gold" onClick={close} aria-label="학습 패널 닫기">✕</button>
               </div>
             </div>
+            {dept && deptLessonIds(dept).length > 1 && (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5" aria-label="이 부서의 강의">
+                <span className="text-[12px] text-slate-400">이 부서의 강의</span>
+                {deptLessonIds(dept).map((id) => {
+                  const l = lessonById(id)
+                  return l ? (
+                    <button key={id} onClick={() => openLesson(id)} className={`rounded-lg border px-2.5 py-1 text-[12.5px] font-semibold ${id === lesson.id ? 'border-gold bg-gold/20 text-gold' : 'border-white/15 text-slate-200 hover:border-white/40'}`}>L{String(l.no).padStart(2, '0')} {l.title.length > 14 ? l.title.slice(0, 14) + '…' : l.title}</button>
+                  ) : null
+                })}
+              </div>
+            )}
             <div className="mt-2 flex items-center gap-2" aria-label="학습 진도">
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10"><motion.div className="h-full bg-gradient-to-r from-cyan-400 to-gold" animate={{ width: `${done * 100}%` }} /></div>
               <span className="text-[12px] tabular-nums text-slate-300">{Math.round(done * 100)}%</span>
@@ -285,7 +329,7 @@ export function LearningPanel() {
           </header>
 
           <div className="scroll-thin flex-1 overflow-y-auto px-4 py-4 md:px-6" key={lesson.id + step}>
-            <StepBody step={step} lesson={lesson} big={lecture} info={info} openViewer={openViewer} deptSimId={dept?.simId} deptName={dept?.name} />
+            <StepBody step={step} lesson={lesson} big={lecture} info={info} openViewer={openViewer} />
           </div>
 
           <footer className="flex items-center justify-between gap-2 border-t border-white/10 px-4 py-2.5 md:px-6">
@@ -305,7 +349,7 @@ export function LearningPanel() {
   )
 }
 
-function StepBody({ step, lesson, big, info, openViewer, deptSimId, deptName }: { step: StepId; lesson: Lesson; big: boolean; info: ReturnType<typeof infographicById>; openViewer: (id: string | null) => void; deptSimId?: string; deptName?: string }) {
+function StepBody({ step, lesson, big, info, openViewer }: { step: StepId; lesson: Lesson; big: boolean; info: ReturnType<typeof infographicById>; openViewer: (id: string | null) => void }) {
   const t = big ? 'text-[17px]' : 'text-[14.5px]'
   const setStep = useStore((s) => s.setLessonStep)
   switch (step) {
@@ -376,11 +420,11 @@ function StepBody({ step, lesson, big, info, openViewer, deptSimId, deptName }: 
           <h3 className="mb-2 text-lg font-bold text-gold">🏨 호텔 적용사례</h3>
           <div className="grid gap-3">
             {lesson.hotelCases.map((c) => {
-              const h = hotelById(c.hotelId)
+              const color = courseOfLesson(lesson.id)?.color ?? '#d4af37'
               return (
-                <motion.div key={c.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-white/12 bg-white/[0.04] p-3.5" style={{ borderLeft: `4px solid ${h?.theme.primary ?? '#d4af37'}` }}>
+                <motion.div key={c.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-white/12 bg-white/[0.04] p-3.5" style={{ borderLeft: `4px solid ${color}` }}>
                   <div className="mb-1 flex flex-wrap items-center gap-2">
-                    {h && <span className="rounded-full px-2 py-0.5 text-[11px] font-extrabold tracking-wide text-navy" style={{ background: h.theme.primary }}>{h.shortName}</span>}
+                    <span className="rounded-full px-2 py-0.5 text-[11px] font-extrabold tracking-wide text-navy" style={{ background: color }}>{c.dept}</span>
                     <b className="text-white">{c.title}</b>
                   </div>
                   <p className={`${t} prose-lec text-slate-200`}>{c.text}</p>
@@ -409,7 +453,7 @@ function StepBody({ step, lesson, big, info, openViewer, deptSimId, deptName }: 
             <p className={`${t} text-slate-100`}>{lesson.practice.mission}</p>
             <ol className="mt-2 grid gap-1 text-[13px] text-slate-200 sm:grid-cols-2">{lesson.practice.steps.map((s, i) => <li key={s}><b className="text-gold">{i + 1}.</b> {s}</li>)}</ol>
           </div>
-          <PracticeSims lessonSimId={lesson.practice.simId} deptSimId={deptSimId} deptName={deptName} />
+          {lesson.practice.simId ? <SimulationPanel key={lesson.id} simId={lesson.practice.simId} /> : <HandsOn lesson={lesson} />}
           <div className="mt-4 text-right"><button className="btn btn-cyan" onClick={() => setStep('quiz')}>실습 완료 → 퀴즈</button></div>
         </div>
       )

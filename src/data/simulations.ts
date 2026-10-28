@@ -12,6 +12,13 @@ export const simulations: SimulationMeta[] = [
   { id: 'agent-automation', title: 'AI Agent 업무 자동화', desc: '컨시어지 요청을 에이전트가 계획·도구호출하고 고위험 단계는 승인 대기합니다.', icon: '🤖', needsHumanApproval: true, kind: 'agent' },
   { id: 'housekeeping', title: '하우스키핑 배정 (컨텍스트 실험)', desc: '컨텍스트 요소를 켜고 끄며 결과 품질 차이를 확인합니다.', icon: '🛏️', needsHumanApproval: true, kind: 'generate' },
   { id: 'humanizer', title: 'AI Humanizer 점검기', desc: 'AI 말투 10패턴을 탐지하고 자연스러운 문장으로 수정합니다.', icon: '✍️', needsHumanApproval: true, kind: 'tool' },
+  { id: 'overhang-check', title: 'AI 역량과잉 자가진단', desc: '8문항으로 우리 팀의 AI 활용 단계(챗 갇힘→도구→워크플로우→AX)를 진단하고 90일 계획을 만듭니다.', icon: '🩺', needsHumanApproval: true, kind: 'tool' },
+  { id: 'rag', title: 'LLM vs RAG 비교 실험', desc: '같은 질문을 LLM 단독과 RAG로 답하게 하고 청킹 단위·검색 개수의 영향을 확인합니다.', icon: '📚', needsHumanApproval: true, kind: 'generate' },
+  { id: 'mcp-connect', title: 'API vs MCP 연결 시뮬레이터', desc: '호텔 시스템을 API와 MCP로 연결할 때의 부담을 비교하고 에이전트의 도구 호출을 확인합니다.', icon: '🔌', needsHumanApproval: true, kind: 'agent' },
+  { id: 'reasoning-lab', title: '추론 기법 비교 랩', desc: 'Zero-shot · CoT · Self-Consistency · ToT · ReAct로 같은 RM 문제를 풀어 비교합니다.', icon: '🧭', needsHumanApproval: true, kind: 'calc' },
+  { id: 'security-review', title: 'AI 생성 코드 보안 리뷰', desc: '코드에서 취약점을 직접 찾고 AI 셀프리뷰(OWASP) 결과와 비교합니다.', icon: '🔐', needsHumanApproval: true, kind: 'tool' },
+  { id: 'pipeline-designer', title: '에이전틱 파이프라인 설계', desc: 'AX 문제발굴 템플릿으로 자동화 가치를 판단하고 트리거-계획-실행-검증 설계서를 만듭니다.', icon: '⛓️', needsHumanApproval: true, kind: 'generate' },
+  { id: 'deploy-check', title: 'GitHub·Vercel 배포 점검', desc: '배포 전 체크리스트, 명령어, 배포 실패 원인 진단을 연습합니다.', icon: '🚀', needsHumanApproval: true, kind: 'tool' },
   { id: 'spec-generator', title: 'SPEC.md 생성기 (Vibe Coding)', desc: '아이디어와 기능으로 SPEC.md와 배포 체크리스트를 만듭니다.', icon: '📝', needsHumanApproval: true, kind: 'generate' },
 ]
 

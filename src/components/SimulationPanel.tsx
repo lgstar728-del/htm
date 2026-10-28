@@ -14,6 +14,13 @@ const registry = {
   housekeeping: lazy(() => import('../sims/Housekeeping')),
   humanizer: lazy(() => import('../sims/HumanizerSim')),
   'spec-generator': lazy(() => import('../sims/SpecGen')),
+  'overhang-check': lazy(() => import('../sims/OverhangCheck')),
+  rag: lazy(() => import('../sims/Rag')),
+  'mcp-connect': lazy(() => import('../sims/McpConnect')),
+  'reasoning-lab': lazy(() => import('../sims/ReasoningLab')),
+  'security-review': lazy(() => import('../sims/SecurityReview')),
+  'pipeline-designer': lazy(() => import('../sims/PipelineDesigner')),
+  'deploy-check': lazy(() => import('../sims/DeployCheck')),
 } as const
 
 export const simulationIds = Object.keys(registry)

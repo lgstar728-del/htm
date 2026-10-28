@@ -219,7 +219,7 @@ export function Station({ dept, pos, theme, onOpen }: { dept: Department; pos: [
           <span className="text-3xl">{KIND_ICON[dept.kind]}</span>
           <span>
             <span className="block text-[26px] font-bold leading-tight text-white">{dept.name}</span>
-            <span className="block text-[17px] leading-snug text-cyan-200">{lesson ? `L${String(lesson.no).padStart(2, '0')} ${lesson.title}` : dept.en}</span>
+            <span className="block text-[17px] leading-snug text-cyan-200">{lesson ? `L${String(lesson.no).padStart(2, '0')} ${lesson.title}${dept.extraLessonIds?.length ? ` 외 ${dept.extraLessonIds.length}강` : ''}` : dept.en}</span>
             <span className="mt-1 block text-[15px] font-semibold text-gold group-hover:underline">클릭하여 학습 시작 ▶</span>
           </span>
         </button>

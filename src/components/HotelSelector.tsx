@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { hotels, hotelById } from '../data/hotels'
+import { hotels, hotelById, topicShort } from '../data/hotels'
 import { lessonById } from '../data/lessons'
 import { useStore } from '../utils/store'
 import { man, pct } from '../utils/calc'
@@ -25,7 +25,7 @@ export function HotelSelector() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass pointer-events-auto w-full rounded-2xl p-3.5">
           <div className="flex items-center justify-between gap-2">
             <div>
-              <div className="text-[11px] font-bold tracking-widest text-cyan-300">LOBBY · 디지털 트윈</div>
+              <div className="text-[11px] font-bold tracking-widest text-cyan-300">🎓 {hotel.topic}</div>
               <div className="text-base font-extrabold text-white">{hotel.name}</div>
             </div>
             <button className="btn !min-h-9 !px-3" onClick={() => exitHotel()}>← 외관</button>
@@ -39,7 +39,7 @@ export function HotelSelector() {
                   <button onClick={() => { if (mode3d) flyTo([0, 9.5, 25], [0, 2.2, -4]); openDept(d.id) }} className="flex w-full items-center gap-2 rounded-xl border border-white/12 bg-white/5 px-3 py-2 text-left transition hover:border-gold hover:bg-white/10">
                     <span className="text-xl">{l?.icon}</span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[13.5px] font-bold text-white">{d.name}</span>
+                      <span className="block text-[13.5px] font-bold text-white">{d.name}{d.extraLessonIds?.length ? <span className="ml-1.5 rounded bg-gold/20 px-1.5 text-[11px] text-gold">+{d.extraLessonIds.length}강</span> : null}</span>
                       <span className="block truncate text-[11.5px] text-slate-300">{d.blurb}</span>
                     </span>
                     <span className="text-gold">▶</span>
@@ -68,7 +68,7 @@ export function HotelSelector() {
           <motion.div key={hotel.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }} className="glass pointer-events-auto w-full max-w-2xl rounded-2xl p-3.5" style={{ borderColor: hotel.theme.primary + '88' }}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-[11px] font-bold tracking-widest" style={{ color: hotel.theme.primary }}>{hotel.facts.grade} · {hotel.facts.location}</div>
+                <div className="text-[11px] font-bold tracking-widest" style={{ color: hotel.theme.primary }}>🎓 {hotel.topic}</div>
                 <div className="text-lg font-extrabold text-white md:text-xl">{hotel.name}</div>
                 <p className="text-[12.5px] text-slate-300">{hotel.tagline}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">{hotel.focus.map((f) => <span key={f} className="rounded-full border px-2 py-0.5 text-[11.5px] font-semibold" style={{ borderColor: hotel.theme.primary + '88', color: hotel.theme.accent }}>{f}</span>)}</div>
@@ -85,7 +85,7 @@ export function HotelSelector() {
         <button className={`btn shrink-0 ${!hotel ? 'btn-cyan' : ''}`} onClick={() => focusHotel(null)}>🌐 전체</button>
         {hotels.map((h) => (
           <button key={h.id} role="tab" aria-selected={hotelId === h.id} className={`btn shrink-0 ${hotelId === h.id ? 'btn-gold' : 'glass'}`} onClick={() => focusHotel(h.id)} style={hotelId === h.id ? undefined : { borderColor: h.theme.primary + '66' }}>
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: h.theme.primary }} />{h.shortName}
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: h.theme.primary }} />{h.shortName}<span className="hidden text-[11px] font-medium opacity-80 sm:inline">· {topicShort(h)}</span>
           </button>
         ))}
       </div>

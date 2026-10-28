@@ -23,9 +23,11 @@ export type Block =
   | { t: 'quote'; text: string; src?: string }
   | { t: 'stats'; items: { v: string; l: string }[] }
   | { t: 'visual'; kind: VisualKind; title?: string }
+  | { t: 'steps'; title: string; items: { label: string; sub?: string; body: string; hotel?: string }[] }
+  | { t: 'code'; text: string; caption?: string }
 
 export interface HotelCase {
-  hotelId: string
+  dept: string // 호텔 현업 부서(표시용)
   title: string
   text: string
 }
@@ -63,6 +65,7 @@ export interface Lesson {
 
 export interface Course {
   id: string
+  hotelId: string
   title: string
   desc: string
   color: string
@@ -77,6 +80,7 @@ export interface Infographic {
   width: number
   height: number
   lessonIds: string[]
+  short: string
 }
 
 export type DeptKind = 'desk' | 'room' | 'meeting' | 'kitchen' | 'ops' | 'server' | 'lounge'
@@ -87,7 +91,7 @@ export interface Department {
   en: string
   kind: DeptKind
   lessonId: string
-  simId: string
+  extraLessonIds?: string[] // 같은 부서에서 이어서 학습할 관련 강의
   blurb: string
 }
 
@@ -103,6 +107,7 @@ export interface HotelFacts {
 
 export interface Hotel {
   id: string
+  topic: string // 호텔의 교육 주제
   name: string
   shortName: string
   tagline: string

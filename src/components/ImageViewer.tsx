@@ -188,7 +188,7 @@ function Viewer({ infoId, onClose, onSwitch }: { infoId: string; onClose: () => 
         <div className="flex flex-1 justify-end gap-1.5 md:flex-none">
           {infographics.map((i) => (
             <button key={i.id} onClick={() => onSwitch(i.id)} className={`rounded-lg border px-2.5 py-1.5 ${i.id === infoId ? 'border-gold bg-gold/20 text-gold' : 'border-white/15 hover:border-white/40'}`}>
-              {i.id === 'humanizer' ? 'AI 말투' : i.id === 'ai-engineering' ? '5 Layers' : '바이브코딩'}
+              {i.short}
             </button>
           ))}
         </div>

@@ -2,7 +2,7 @@
 
 3D 인터랙티브 호텔리어 AI 교육 플랫폼 — **가상 호텔 선택 → 3D 입장 → 부서 선택 → AI 교육 → 직무별 실습 → 경영혁신 시뮬레이션**
 
-- 가상 호텔 5개 · 부서 18개 · 강의 12개 · 실습 11종 · 원본 인포그래픽 3종
+- 주제별 가상 호텔 5개(AI 동향 · LLM/RAG/API/MCP · Prompt Engineering · Vibe Coding · Other) · 부서 20개 · 강의 22개 · 실습 18종 · 원본 인포그래픽 5종
 - React + Vite + TypeScript + Tailwind CSS + Three.js / React Three Fiber / Drei + Framer Motion
 - 설계 문서: [SPEC.md](./SPEC.md)
 
@@ -43,16 +43,16 @@ npm run dev        # http://localhost:5173
 
 | 바꾸고 싶은 것 | 수정할 파일 |
 | --- | --- |
-| 호텔명·부서명·소개·KPI | `src/data/hotels.ts` |
-| 강의 내용(이론·사례·프롬프트·퀴즈) | `src/data/lessons/paradigm.ts`, `engineering.ts`, `tools.ts` |
-| 강의 묶음(코스) | `src/data/courses.ts` |
+| 호텔명·주제·부서명(부서 → 강의 연결) | `src/data/hotels.ts` (한 부서에 `extraLessonIds`로 관련 강의 추가 가능) |
+| 강의 내용(이론·사례·프롬프트·퀴즈) | 호텔별 파일 `src/data/lessons/trend.ts`(BLUEWAVE) · `connect.ts`(NEXUS) · `prompt.ts`(AURORA) · `vibe.ts`(HORIZON) · `claude.ts`(LUMEN) |
+| 호텔별 강의 묶음(코스) | `src/data/courses.ts` |
 | 실습 가상 데이터(문의 문구, 요금표, 점유율 이력 등) | `src/data/simulations.ts` |
-| 인포그래픽 이미지 | `public/images/humanizer.png`, `ai-engineering.png`, `vibe-coding.png` 를 **같은 파일명**으로 교체 (크기가 달라지면 `src/data/infographics.ts`의 width/height) |
+| 인포그래픽 이미지 | `public/images/` 의 `llm-rag-agent.png`, `iceberg.png`, `ai-engineering.png`, `humanizer.png`, `vibe-coding.png` 를 **같은 파일명**으로 교체 (크기가 달라지면 `src/data/infographics.ts`의 width/height) |
 
 수정 후 `npm run validate` 로 연결 오류(없는 강의·실습 id, 깨진 이미지 경로 등)를 즉시 확인할 수 있고, `npm run build` 에서도 자동 실행됩니다.
 
 ### 확장
-- **강의 추가**: `src/data/lessons/*.ts` 에 `Lesson` 객체 추가 → `courses.ts` 의 `lessonIds` 에 등록 → 부서(`hotels.ts`)의 `lessonId` 로 연결
+- **강의 추가**: `src/data/lessons/*.ts` 에 `Lesson` 객체 추가 → `courses.ts` 의 `lessonIds` 에 등록 → 부서(`hotels.ts`)의 `lessonId`/`extraLessonIds` 로 연결
 - **호텔 추가**: `hotels.ts` 에 객체 추가(부서 포함) → `src/scenes/HotelModel.tsx` 에 외관 스타일 추가(또는 `public/models/*.glb` + `useGLTF`) → `position`/`facing` 지정
 - **실습 추가**: `src/sims/` 에 컴포넌트 작성 → `data/simulations.ts` 등록 → `components/SimulationPanel.tsx` 의 registry 연결
 
@@ -86,9 +86,9 @@ git push -u origin main
 | --- | --- |
 | 3D가 보이지 않음/느림 | 헤더에서 `2D` 간편 모드로 전환. 하드웨어 가속이 꺼져 있으면 브라우저 설정에서 켜세요 |
 | `validate` 실패 | 출력된 ✖ 항목(없는 id, 이미지 경로 등)을 `src/data/*` 에서 수정 |
-| 인포그래픽이 안 보임 | `public/images/` 파일명이 `humanizer.png`, `ai-engineering.png`, `vibe-coding.png` 인지 확인 |
+| 인포그래픽이 안 보임 | `public/images/` 파일명이 위 5개 이름과 같은지 확인 |
 | 한글 폰트가 다르게 보임 | Pretendard CDN 접속이 안 되면 시스템 폰트(맑은 고딕 등)로 대체됩니다 |
 
 ## 6. 라이선스·출처
 
-강의 내용은 「AI와 경영혁신」 1·2·3부, 「AI와 경영혁신 1주차」, 「Gen AI Orientation」 및 인포그래픽 3종(AI ENGINEERING 5 LAYERS, 전형적인 AI 말투, 바이브코딩)을 재구성한 교육용 자료입니다. 시장 수치·모델명·가격은 자료 작성 시점 기준이므로 강의 전 최신 값으로 확인하세요. 모든 호텔·고객·수치 데이터는 가상입니다.
+강의 내용은 「AI와 경영혁신」 1·2·3부, 「AI와 경영혁신 1주차」, 「Gen AI Orientation」, 강의자료 4·5·6주차(PDF) 및 인포그래픽 5종(LLM·RAG·에이전트, Gen AI Iceberg, AI ENGINEERING 5 LAYERS, 전형적인 AI 말투, 바이브코딩)을 재구성한 교육용 자료입니다. 시장 수치·모델명·가격은 자료 작성 시점 기준이므로 강의 전 최신 값으로 확인하세요. 모든 호텔·고객·수치 데이터는 가상입니다.

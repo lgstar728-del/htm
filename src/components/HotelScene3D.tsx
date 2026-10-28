@@ -2,7 +2,7 @@ import { Suspense, useEffect, useMemo } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
 import { Html, OrbitControls, Sparkles, Stars } from '@react-three/drei'
 import * as THREE from 'three'
-import { hotels } from '../data/hotels'
+import { hotels, topicShort } from '../data/hotels'
 import { HotelModel, HOTEL_HEIGHT } from '../scenes/HotelModel'
 import { CameraRig } from '../scenes/CameraRig'
 import { HotelInterior } from './HotelInterior'
@@ -78,6 +78,7 @@ function HotelTag({ id }: { id: string }) {
         aria-label={`${h.name} 선택`}
       >
         {h.shortName}
+        <span className={`block text-center text-[15px] font-semibold ${focused ? 'text-navy' : 'text-cyan-200'}`}>{topicShort(h)}</span>
       </button>
     </Html>
   )

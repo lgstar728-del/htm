@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { courses } from '../data/courses'
-import { lessonById } from '../data/lessons'
+import { lessonById, lessons } from '../data/lessons'
 import { useStore } from '../utils/store'
+import { hotelById } from '../data/hotels'
 
 interface N { id: string; label: string; x: number; y: number; kind: 'person' | 'place' | 'event' | 'concept'; info: string }
 interface E { a: string; b: string; label: string }
@@ -86,19 +87,23 @@ export function KnowledgeGraphModal() {
   const openLesson = useStore((s) => s.openLesson)
   const [hover, setHover] = useState<string | null>(null)
 
+  // 코스(호텔) 1개 = 가로 한 줄, 강의는 줄 안에서 가운데 정렬
   const layout = useMemo(() => {
     const pos: Record<string, { x: number; y: number }> = {}
-    // 5개 코스를 가로 띠로 배치, 각 코스 안의 강의는 가로로 나열
+    const maxN = Math.max(...courses.map((c) => c.lessonIds.length))
+    const span = 500
     courses.forEach((c, ci) => {
+      const n = c.lessonIds.length
       c.lessonIds.forEach((id, li) => {
-        const n = c.lessonIds.length
-        pos[id] = { x: 70 + ((li + 0.5) / Math.max(n, 3)) * 520 + (n < 3 ? 90 : 0) - 20, y: 50 + ci * 78 }
+        pos[id] = { x: 100 + ((maxN - n) / 2 + li + 0.5) * (span / maxN) + 20, y: 48 + ci * 80 }
       })
     })
     return pos
   }, [])
 
-  const links: [string, string][] = [['L01', 'L02'], ['L02', 'L03'], ['L03', 'L04'], ['L04', 'L05'], ['L05', 'L06'], ['L06', 'L07'], ['L07', 'L08'], ['L08', 'L09'], ['L03', 'L07'], ['L05', 'L10'], ['L10', 'L11'], ['L05', 'L11'], ['L07', 'L10'], ['L10', 'L12'], ['L08', 'L12'], ['L06', 'L10']]
+  // 권장 학습 동선(L01→L22) + 주제 간 연결
+  const chain: [string, string][] = lessons.slice(1).map((l, i) => [lessons[i].id, l.id])
+  const links: [string, string][] = [...chain, ['L03', 'L20'], ['L05', 'L20'], ['L07', 'L19'], ['L09', 'L16'], ['L11', 'L15'], ['L08', 'L17'], ['L10', 'L21'], ['L13', 'L19'], ['L06', 'L22']]
   if (!open) return null
   return (
     <div className="fixed inset-0 z-[70] grid place-items-center bg-black/70 p-3 backdrop-blur-sm" onClick={() => setOpen(false)}>
@@ -106,11 +111,11 @@ export function KnowledgeGraphModal() {
         <div className="mb-3 flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-bold text-gold md:text-xl">🕸️ AI 교육 지식그래프</h2>
-            <p className="text-[13px] text-slate-300">12개 강의의 선수 관계입니다. 노드를 누르면 해당 강의가 열립니다.</p>
+            <p className="text-[13px] text-slate-300">5개 호텔(주제) · 22개 강의의 학습 동선입니다. 노드를 누르면 해당 강의가 열립니다.</p>
           </div>
           <button className="btn btn-gold" onClick={() => setOpen(false)}>닫기</button>
         </div>
-        <svg viewBox="0 0 640 400" className="w-full rounded-xl bg-navy/70" role="img" aria-label="강의 간 관계 그래프">
+        <svg viewBox="0 0 700 420" className="w-full rounded-xl bg-navy/70" role="img" aria-label="강의 간 관계 그래프">
           {links.map(([a, b]) => {
             const pa = layout[a]
             const pb = layout[b]
@@ -118,7 +123,7 @@ export function KnowledgeGraphModal() {
             return <line key={a + b} x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y} stroke={on ? '#d4af37' : '#475a85'} strokeWidth={on ? 2.5 : 1.2} opacity={hover && !on ? 0.2 : 0.8} />
           })}
           {courses.map((c, ci) => (
-            <text key={c.id} x="8" y={54 + ci * 78} fontSize="10" fill={c.color} fontWeight="700" transform={`rotate(-90 12 ${54 + ci * 78})`} textAnchor="middle">{c.title.slice(0, 6)}</text>
+            <text key={c.id} x="6" y={52 + ci * 80} fontSize="11" fill={c.color} fontWeight="800">{hotelById(c.hotelId)?.shortName}</text>
           ))}
           {courses.flatMap((c) =>
             c.lessonIds.map((id) => {
@@ -126,16 +131,16 @@ export function KnowledgeGraphModal() {
               const p = layout[id]
               return (
                 <g key={id} style={{ cursor: 'pointer' }} onMouseEnter={() => setHover(id)} onMouseLeave={() => setHover(null)} onClick={() => { setOpen(false); openLesson(id) }} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && (setOpen(false), openLesson(id))} aria-label={l.title}>
-                  <circle cx={p.x} cy={p.y} r={hover === id ? 27 : 23} fill={c.color} fillOpacity={0.9} stroke="#fff" strokeOpacity={hover === id ? 1 : 0.3} strokeWidth="2" />
-                  <text x={p.x} y={p.y + 5} fontSize="15" textAnchor="middle">{l.icon}</text>
-                  <text x={p.x} y={p.y + 41} fontSize="10" fill="#e2e8f0" textAnchor="middle">{`L${String(l.no).padStart(2, '0')} ${l.title.length > 13 ? l.title.slice(0, 13) + '…' : l.title}`}</text>
+                  <circle cx={p.x} cy={p.y} r={hover === id ? 22 : 19} fill={c.color} fillOpacity={0.9} stroke="#fff" strokeOpacity={hover === id ? 1 : 0.3} strokeWidth="2" />
+                  <text x={p.x} y={p.y + 5} fontSize="14" textAnchor="middle">{l.icon}</text>
+                  <text x={p.x} y={p.y + 33} fontSize="9.5" fill="#e2e8f0" textAnchor="middle">{`L${String(l.no).padStart(2, '0')} ${l.title.length > 9 ? l.title.slice(0, 9) + '…' : l.title}`}</text>
                 </g>
               )
             }),
           )}
         </svg>
         <div className="mt-3 flex flex-wrap gap-2">
-          {courses.map((c) => (<span key={c.id} className="flex items-center gap-1.5 text-[12px]"><span className="h-3 w-3 rounded-full" style={{ background: c.color }} />{c.title}</span>))}
+          {courses.map((c) => (<span key={c.id} className="flex items-center gap-1.5 text-[12px]"><span className="h-3 w-3 rounded-full" style={{ background: c.color }} />{hotelById(c.hotelId)?.shortName} · {c.title}</span>))}
         </div>
       </div>
     </div>

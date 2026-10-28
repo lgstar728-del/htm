@@ -36,9 +36,13 @@ const infoIds = new Set(infographics.map((i) => i.id))
 if (lessonIds.size !== lessons.length) err('강의 id 중복')
 if (hotelIds.size !== hotels.length) err('호텔 id 중복')
 if (hotels.length !== 5) warn(`호텔이 ${hotels.length}개입니다 (요구사항: 5개)`)
+for (const h of hotels) if (!courses.some((c) => c.hotelId === h.id)) err(`호텔 ${h.id} 에 연결된 코스가 없음`)
 
 // 코스 ↔ 강의
-for (const c of courses) for (const id of c.lessonIds) if (!lessonIds.has(id)) err(`코스 ${c.id}: 존재하지 않는 강의 ${id}`)
+for (const c of courses) {
+  if (!hotelIds.has(c.hotelId)) err(`코스 ${c.id}: 존재하지 않는 호텔 ${c.hotelId}`)
+  for (const id of c.lessonIds) if (!lessonIds.has(id)) err(`코스 ${c.id}: 존재하지 않는 강의 ${id}`)
+}
 const inCourse = new Set(courses.flatMap((c) => c.lessonIds))
 for (const l of lessons) if (!inCourse.has(l.id)) err(`강의 ${l.id} 가 어떤 코스에도 속하지 않음`)
 
@@ -51,9 +55,10 @@ for (const h of hotels) {
   for (const d of h.departments) {
     if (deptIds.has(d.id)) err(`부서 id 중복: ${d.id}`)
     deptIds.add(d.id)
-    if (!lessonIds.has(d.lessonId)) err(`${h.id}/${d.id}: 존재하지 않는 강의 ${d.lessonId}`)
-    else reachable.add(d.lessonId)
-    if (!simIds.has(d.simId)) err(`${h.id}/${d.id}: 존재하지 않는 실습 ${d.simId}`)
+    for (const lid of [d.lessonId, ...(d.extraLessonIds ?? [])]) {
+      if (!lessonIds.has(lid)) err(`${h.id}/${d.id}: 존재하지 않는 강의 ${lid}`)
+      else reachable.add(lid)
+    }
   }
 }
 for (const l of lessons) if (!reachable.has(l.id)) warn(`강의 ${l.id}(${l.title}) 는 3D 부서에서 바로 열 수 없음 (지식그래프/목록으로만 접근)`)
@@ -64,7 +69,7 @@ for (const s of simulations) {
 }
 
 // 강의 내용
-const required = ['Prompt Engineering', 'Context Engineering', 'Harness Engineering', 'Loop Engineering', 'Graph Engineering', 'Humanizer', 'Vibe Coding', 'GitHub', 'Vercel', 'DX', 'AX', 'Agent', 'Cowork']
+const required = ['Prompt Engineering', 'Context Engineering', 'Harness Engineering', 'Loop Engineering', 'Graph Engineering', 'Humanizer', 'Vibe Coding', 'GitHub', 'Vercel', 'DX', 'AX', 'Agent', 'Cowork', 'RAG', 'MCP', 'API', 'SPEC.md', 'OWASP', 'Self-Consistency', 'Capability Overhang', 'Iceberg', 'CLAUDE.md', 'Hook']
 const corpus = JSON.stringify(lessons)
 for (const k of required) if (!corpus.includes(k)) err(`필수 교육 키워드 누락: ${k}`)
 
@@ -76,7 +81,8 @@ for (const l of lessons) {
   if (!l.quiz?.length) err(`${l.id}: 퀴즈 없음`)
   if (l.practice?.simId && !simIds.has(l.practice.simId)) err(`${l.id}: 존재하지 않는 실습 ${l.practice.simId}`)
   if (l.infographicId && !infoIds.has(l.infographicId)) err(`${l.id}: 존재하지 않는 인포그래픽 ${l.infographicId}`)
-  for (const c of l.hotelCases ?? []) if (!hotelIds.has(c.hotelId)) err(`${l.id}: 사례의 호텔 ${c.hotelId} 없음`)
+  for (const c of l.hotelCases ?? []) if (!c.dept) err(`${l.id}: 호텔 사례에 dept(부서명)가 없음 "${c.title}"`)
+  if (!l.practice?.mission || !l.practice?.steps?.length) err(`${l.id}: 실습 미션/단계 없음`)
   for (const q of l.quiz ?? []) if (q.answer < 0 || q.answer >= q.options.length) err(`${l.id}: 퀴즈 정답 인덱스 오류 "${q.q}"`)
 }
 

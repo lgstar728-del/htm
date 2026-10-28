@@ -29,7 +29,7 @@ export function Fallback2D() {
                   <div className="flex items-center gap-3">
                     <span className="grid h-14 w-14 place-items-center rounded-2xl text-3xl" style={{ background: `linear-gradient(135deg, ${h.theme.primary}55, transparent)` }}>{STYLE_ICON[h.style]}</span>
                     <div>
-                      <div className="text-[11px] font-bold tracking-widest" style={{ color: h.theme.primary }}>{h.facts.grade}</div>
+                      <div className="text-[11px] font-bold tracking-widest" style={{ color: h.theme.primary }}>🎓 {h.topic}</div>
                       <div className="text-[17px] font-extrabold text-white">{h.name}</div>
                     </div>
                   </div>
@@ -45,7 +45,7 @@ export function Fallback2D() {
           <>
             <button className="btn mb-3" onClick={() => exitHotel(true)}>← 호텔 목록</button>
             <div className="glass rounded-2xl p-4" style={{ borderColor: hotel.theme.primary + '88' }}>
-              <div className="text-[11px] font-bold tracking-widest" style={{ color: hotel.theme.primary }}>LOBBY</div>
+              <div className="text-[11px] font-bold tracking-widest" style={{ color: hotel.theme.primary }}>🎓 {hotel.topic}</div>
               <h1 className="text-2xl font-extrabold text-white">{hotel.name}</h1>
               <p className="text-sm text-slate-300">{hotel.tagline}</p>
               <div className="mt-3 grid grid-cols-3 gap-2 text-center">
@@ -64,7 +64,7 @@ export function Fallback2D() {
                       <span className="grid h-12 w-12 place-items-center rounded-xl bg-white/10 text-2xl">{l?.icon}</span>
                       <div>
                         <div className="text-[16px] font-extrabold text-white">{d.name}</div>
-                        <div className="text-[12px] text-cyan-200">{d.en} · L{String(l?.no).padStart(2, '0')} {l?.title}</div>
+                        <div className="text-[12px] text-cyan-200">{d.en} · L{String(l?.no).padStart(2, '0')} {l?.title}{d.extraLessonIds?.length ? ` 외 ${d.extraLessonIds.length}강` : ''}</div>
                       </div>
                     </div>
                     <p className="mt-2 text-[13px] text-slate-300">{d.blurb}</p>
